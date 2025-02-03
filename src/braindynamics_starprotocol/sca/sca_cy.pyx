@@ -53,21 +53,31 @@ cdef float _scaled_correlation(float[:] x, float[:] y, int s, bint fisher_transf
     
     return r_s
 
-cpdef scaled_cross_correlation(float[:] corr_coeff_arr, float[:] x, float[:] y, int scale_size, int max_shift_size, bint fisher_transform):
+cpdef cross_correlation(float[:] corr_coeff_arr, float[:] x, float[:] y, int max_shift_size, int scale_size, bint fisher_transform):
     cdef int n_x, n_y 
     cdef int shift
     
     n_x = x.shape[0]
     n_y = y.shape[0]
     
-    # negative lag: shift x to the left, relative to y 
-    for shift in range(-max_shift_size, 0):
-        corr_coeff_arr[shift + max_shift_size] = _scaled_correlation(x[-shift:], y[:n_y + shift], scale_size, fisher_transform)
-    # zero lag: no shift between x and y
-    corr_coeff_arr[max_shift_size] = _scaled_correlation(x, y, scale_size, fisher_transform)
-    # positive lag: shift x to the right, relative to y
-    for shift in range(1, max_shift_size + 1):
-        corr_coeff_arr[shift + max_shift_size] = _scaled_correlation(x[:n_x - shift], y[shift:], scale_size, fisher_transform)
+    if scale_size > 0:
+        # negative lag: shift x to the left, relative to y 
+        for shift in range(-max_shift_size, 0):
+            corr_coeff_arr[shift + max_shift_size] = _scaled_correlation(x[-shift:], y[:n_y + shift], scale_size, fisher_transform)
+        # zero lag: no shift between x and y
+        corr_coeff_arr[max_shift_size] = _scaled_correlation(x, y, scale_size, fisher_transform)
+        # positive lag: shift x to the right, relative to y
+        for shift in range(1, max_shift_size + 1):
+            corr_coeff_arr[shift + max_shift_size] = _scaled_correlation(x[:n_x - shift], y[shift:], scale_size, fisher_transform)
+    else:
+
+        for shift in range(-max_shift_size, 0):
+            corr_coeff_arr[shift + max_shift_size] = _pearson_correlation(x[-shift:], y[:n_y + shift])
+       
+        corr_coeff_arr[max_shift_size] = _pearson_correlation(x, y)
+        
+        for shift in range(1, max_shift_size + 1):
+            corr_coeff_arr[shift + max_shift_size] = _pearson_correlation(x[:n_x - shift], y[shift:])
 
 cpdef find_extremas(float[:] corr_coeff_arr, unsigned short[:] is_extrema):
     cdef int i

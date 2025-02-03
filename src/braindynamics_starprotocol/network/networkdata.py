@@ -1,11 +1,19 @@
 import numpy as np
 import os
-from ..sca.scaledcrosscorrelogram import ScaledCrossCorrelogram
+from ..sca.crosscorrelogram import CrossCorrelogram
 import igraph as ig
 
 
 class NetworkData:
-    """ Datatype used to store functional brain networks (edgelists) extracted from brain activity recordings for multiple experimental trials.
+    """
+
+    Attributes: 
+        trial_nr (int): Number of experimental trials (2D time series) from which networks will be extracted. 
+        edge_nr (int): Number of edges in the functional brain network. 
+        edgelist_arr (np.ndarray): Array of edge lists (in format <source> <target> <weight>) for each trial.
+        laglist_arr (np.ndarray): Array of lag lists (in format <source> <target> <lag>) for each trial.
+        node_nr (int): Number of nodes in the functional brain network.
+        info_dict (dict):  Dictionary storing metadata (e.g. node labels).
     """
     def __init__(self):
         self.trial_nr = 0 # total number of trials
@@ -16,7 +24,7 @@ class NetworkData:
         self.info_dict = {} # dictionary for other information (meta-data)
 
     def clear(self):
-        """ Function that clears NetworkData object.
+        """Function that clears NetworkData object.
         """
         self.trial_nr = 0
         self.edge_nr = 0
@@ -26,7 +34,7 @@ class NetworkData:
         self.info_dict.clear()
     
     def load_from_filelist(self, filelist_path:str, load_lags:bool=False)->None:
-        """ Function that loads edgelists from filelist.
+        """Function that loads edgelists from filelist.
 
         Args:
             filelist_path (str): Path to filelist (enumeration of edge list files)
@@ -60,7 +68,7 @@ class NetworkData:
                 self.laglist_arr[i] = laglist
     
     def write_to_filelist(self, filelist_path:str, save_lags:bool=False)->None:
-        """ Function that exports edgelists into separate files and generates the filelist.
+        """Function that exports edgelists into separate files and generates the filelist.
 
         Args:
             filelist_path (str): path to filelist
@@ -82,13 +90,14 @@ class NetworkData:
                     file.write(f"{source} {target} {weight}\n")
         np.savetxt(filelist_path, filelist, fmt="%s")
 
-    def extract(self, samp_mat_list:list, corrgram:ScaledCrossCorrelogram, use_fisher:bool=True, sca_method:str="C", export_to_filelists:tuple=None)->None:
-        """ Function that extracts functional brain networks from experimental trial samples. Functional connectivity (edge weights) is defined as scaled correlation developed by Nikolic et al.
+    def extract(self, samp_mat_list:list, corrgram:CrossCorrelogram, use_fisher:bool=True, cc_method:str="C", export_to_filelists:tuple=None)->None:
+        """Function that extracts functional brain networks from experimental trial samples. Functional connectivity (edge weights) is defined as cross-correlation (either classical Pearson or SCA developed by Nikolic et al)
 
         Args:
             samp_mat_list (list): list of trial sample matrices of shape (number of trials, number of channels/nodes, length of a trial)
-            corrgram (ScaledCrossCorrelogram): scaled cross-correlogram object with pre-defined parameters
+            corrgram (CrossCorrelogram): cross-correlogram object with pre-defined parameters
             use_fisher (bool, optional): use Fisher transform or not in scaled correlation computation (see Nikolic et al. 2012). Defaults to True.
+            cc_method (str, optional): choose implementation (python or cython). Defaults to C.
         """
         self.clear()
         self.trial_nr = len(samp_mat_list)
@@ -101,7 +110,7 @@ class NetworkData:
                 e = 0
                 for i in range(self.node_nr):
                     for j in range(i + 1, self.node_nr): # NOTE: scaled correlation is symmetric
-                        corrgram.compute(samp_mat_list[t][i], samp_mat_list[t][j], use_fisher=use_fisher, sca_method=sca_method)
+                        corrgram.compute(samp_mat_list[t][i], samp_mat_list[t][j], use_fisher=use_fisher, cc_method=cc_method)
                         lag, maxabs = corrgram.get_maxabs()
                         self.edgelist_arr[t][e] = [i, j, maxabs]
                         self.laglist_arr[t][e] = [i, j, lag]
@@ -120,7 +129,7 @@ class NetworkData:
                     with open(os.path.join(lag_filelist_root, f"edge_list-{t + 1}.txt"), "w") as lag_file:
                         for i in range(self.node_nr):
                             for j in range(i + 1, self.node_nr): # NOTE: scaled correlation is symmetric
-                                corrgram.compute(samp_mat_list[t][i], samp_mat_list[t][j], use_fisher=use_fisher, sca_method=sca_method)
+                                corrgram.compute(samp_mat_list[t][i], samp_mat_list[t][j], use_fisher=use_fisher, cc_method=cc_method)
                                 lag, maxabs = corrgram.get_maxabs()
                                 self.edgelist_arr[t][e] = [i, j, maxabs]
                                 self.laglist_arr[t][e] = [i, j, lag]
@@ -133,7 +142,7 @@ class NetworkData:
             np.savetxt(lag_filelist_path, filelist, fmt="%s")
 
     def get_maxabs_weights(self)->float:
-        """ Function that finds the maximum absolute edge weight across the trials. It can be used to normalize all edge weights.
+        """Function that finds the maximum absolute edge weight across the trials. It can be used to normalize all edge weights.
 
         Returns:
             float: value of maximum absolute edge weight (if it's above 1.0, return 1.0 instead)
@@ -144,7 +153,7 @@ class NetworkData:
         return global_max
 
     def get_minmax_distances(self, norm_factor:float=1.0)->tuple:
-        """ Function that finds the minimum and maximum distance (shortest path length between nodes).
+        """Function that finds the minimum and maximum distance (shortest path length between nodes).
 
         Args:
             norm_factor (float, optional): normalizion factor for edge weights (useful when there's a correlation value above 1.0 due to numerical error/interpolation in SCA). Defaults to 1.0.
@@ -173,7 +182,7 @@ class NetworkData:
         return global_min, global_max
 
     def compute_ewd(self, bin_nr:int=30, ewd_vmin:float=-1.0, ewd_vmax:float=1.0)->np.ndarray:
-        """ Function that computes edge weight distributions from multiple trials, accordingly to Varga et al 2024.
+        """Function that computes edge weight distributions from multiple trials, accordingly to Varga et al 2024.
 
         Args:
             bin_nr (int, optional): number of bins for the distribution. Defaults to 30.
@@ -194,7 +203,7 @@ class NetworkData:
         return ewd
 
     def compute_ndd(self, bin_nr:int=30, ndd_vmin:float=None, ndd_vmax:float=None, norm_factor:float=1.0)->np.ndarray:
-        """ Function that computes the node distance distribution accordingly to Varga et al. 2024
+        """Function that computes the node distance distribution accordingly to Varga et al. 2024
 
         Args:
             bin_nr (int, optional): _number of bins for the distribution. Defaults to 30.
@@ -231,7 +240,7 @@ class NetworkData:
         return ndd
 
     def compute_newd(self, bin_nr:int=30, newd_vmin:float=-1.0, newd_vmax:float=1.0)->np.ndarray:
-        """ Function that computes the node edge weight distribution (aggregated EWD for the nodes), accordingly to Varga et al. 2024
+        """Function that computes the node edge weight distribution (aggregated EWD for the nodes), accordingly to Varga et al. 2024
 
         Args:
             bin_nr (int, optional): number of bins for the distribution. Defaults to 30.
@@ -272,7 +281,7 @@ class NetworkData:
         return newd
 
     def compute_ew_for_Cliffs_delta(self)->np.ndarray:
-        """ Function that prepares the edge weights for Cliff's delta computation, accordingly to Varga et al. 2024
+        """Function that prepares the edge weights for Cliff's delta computation, accordingly to Varga et al. 2024
 
         Returns:
             np.ndarray: array of shape (number of edges, number of trials) representing the edge weights for all trials
@@ -289,7 +298,7 @@ class NetworkData:
 
 
     def compute_nd_for_Cliffs_delta(self, norm_factor:float=1.0)->np.ndarray:
-        """ Function that computes the node distances for Cliff's delta accordingly to Varga et al. 2024
+        """Function that computes the node distances for Cliff's delta accordingly to Varga et al. 2024
 
         Args:
             norm_factor (float, optional): normalizion factor for edge weights (useful when there's a correlation value above 1.0 due to numerical error/interpolation in SCA). Defaults to 1.0.
@@ -317,7 +326,7 @@ class NetworkData:
         return ndd_Cliffs
 
     def compute_new_for_Cliffs_delta(self)->np.ndarray:
-        """ Function that computes the node edge weights for Cliff's delta (aggregated EWD for the nodes), accordingly to Varga et al. 2024
+        """Function that computes the node edge weights for Cliff's delta (aggregated EWD for the nodes), accordingly to Varga et al. 2024
 
         Args:
             -

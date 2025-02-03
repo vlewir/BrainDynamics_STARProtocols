@@ -26,7 +26,7 @@ python -m venv braindynamics_env
 OR via Anaconda:
 
 ```
-conda create --name braindynamics_env python=3.x
+conda create --name braindynamics_env python=3.12
 ```
 
 ### 2) Install package from PyPi
@@ -34,5 +34,11 @@ conda create --name braindynamics_env python=3.x
 ```
  pip install braindynamics-starprotocol
 ```
+
+### 3) Usage
+
+For an example of the pipeline, check `examples/pipeline_example.ipynb` notebook, or run the `.py` file with the same name.
+
+For more details, you can also refer to the [documentation available on ReadTheDocs](https://braindynamics-starprotocols-kipucolt2.readthedocs.io/en/latest/#)
 
 Link to the PyPi project site for release history: https://pypi.org/project/braindynamics-starprotocol

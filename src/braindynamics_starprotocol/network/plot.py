@@ -4,7 +4,7 @@ from matplotlib import cm
 import matplotlib
 
 def plot_distribution(data:np.ndarray, sorting:np.ndarray=None, fig:matplotlib.figure.Figure=None, ax:matplotlib.axes._axes.Axes=None, cmap:matplotlib.colors.LinearSegmentedColormap=cm.coolwarm, cmin:float=None, cmax:float=None, clabel:str="", show_cbar:bool=False, xlabel:str=None, ylabel:str=None, title:str=None, vmin:float=None, vmax:float=None, yticks:np.ndarray=None, mirror_yticks:bool=False)->None:
-    """ Function that plots a heatmap based on a 2D array. It can be used to visualize distributions (EWD, NDD, N-EWD) or to plot the results of their comparison (Cliff's delta values).
+    """Function that plots a heatmap based on a 2D array. It can be used to visualize distributions (EWD, NDD, N-EWD) or to plot the results of their comparison (Cliff's delta values).
 
     Args:
         data (np.ndarray): Array of 2D.
@@ -72,7 +72,7 @@ def plot_distribution(data:np.ndarray, sorting:np.ndarray=None, fig:matplotlib.f
         cbar.set_label(clabel)
 
 def plot_Cliffs_delta(deltas:np.ndarray, sorting:np.ndarray=None, fig:matplotlib.figure.Figure=None, axes:list[matplotlib.axes._axes.Axes]=None, clabel:str="", show_cbar:bool=False, titles:list[str]=None)->None:
-    """ Plot Cliff's delta statistic resulting from the comparison of two 2D distributions. Two separate axes are plotted, one with the delta values and the other showing the absolute thresholds representing significance based on Vargha et al. 2000
+    """Plot Cliff's delta statistic resulting from the comparison of two 2D distributions. Two separate axes are plotted, one with the delta values and the other showing the absolute thresholds representing significance based on Vargha et al. 2000
 
     Args:
         deltas (np.ndarray): Array of Cliff deltas

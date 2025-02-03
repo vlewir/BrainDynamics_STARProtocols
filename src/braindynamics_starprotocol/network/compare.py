@@ -2,7 +2,7 @@ import numpy as np
 from cliffs_delta import cliffs_delta
 
 def compare_ews_Cliffs_delta(A:np.ndarray, B:np.ndarray)->tuple:
-	""" Function that computes Cliff's delta metric for two sets of edge weights (EWD samples). Because the EWD is a bimodal distribution, we calculate separately for the negative and for the positive parts of the distribution.
+	"""Function that computes Cliff's delta metric for two sets of edge weights (EWD samples). Because the EWD is a bimodal distribution, we calculate separately for the negative and for the positive parts of the distribution.
 
 	Args:
 		A (np.ndarray): First array of edge weights with shape: <number of edges>, <number of trials>
@@ -75,7 +75,7 @@ def compare_nds_Cliffs_delta(A:np.ndarray, B:np.ndarray)->np.ndarray:
 	return deltas
 
 def compare_news_Cliffs_delta(A:np.ndarray, B:np.ndarray)->tuple:
-	""" Function that computes Cliff's delta metric for two sets of node edge weights (N-EWD values). Because the N-EWD is a bimodal distribution, we calculate separately for the negative and for the positive parts of the distribution.
+	"""Function that computes Cliff's delta metric for two sets of node edge weights (N-EWD values). Because the N-EWD is a bimodal distribution, we calculate separately for the negative and for the positive parts of the distribution.
 
 	Args:
 		A (np.ndarray): First array of node distances with shape: <number of nodes>, (<number of nodes> - 1)*<total number of trials 1>.

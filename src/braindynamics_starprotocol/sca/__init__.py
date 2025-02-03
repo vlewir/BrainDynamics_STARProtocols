@@ -1,1 +1,1 @@
-from .scaledcrosscorrelogram import ScaledCrossCorrelogram
+from .crosscorrelogram import CrossCorrelogram

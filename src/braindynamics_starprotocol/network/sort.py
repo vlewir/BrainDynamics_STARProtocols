@@ -2,13 +2,13 @@ import numpy as np
 import operator
 
 def sort_distribution(data:np.ndarray)->tuple:
-    """ Function that performs extensive sort (sorting rows based on column values) of 2D data.
+    """Function that performs extensive sort (sorting rows based on column values) of 2D data.
 
     Args:
-        data (np.ndarray): input 2D array
+        data (np.ndarray): Input 2D array of shape: <nr_elements>, <nr_bins>.
 
     Returns:
-        tuple: two arrays of sorted indices of rows from first-to-last and last-to first columns
+        tuple: Two arrays of sorted indices of rows from first-to-last and last-to first columns.
     """
 
     data_len, bin_nr = data.shape

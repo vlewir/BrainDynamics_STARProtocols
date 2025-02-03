@@ -1,0 +1,6 @@
+igraph>=0.11.6
+pandas>=2.2.2
+scipy>=1.14.0
+matplotlib>=3.9.2
+cliffs_delta>=1.0.0
+sphinx-rtd-theme>=3.0.2

@@ -7,15 +7,15 @@ SAMPLE_DTYPE = np.float32 # data type of samples
 EVENT_DTYPE = np.int32 # data type of event timestamps & markers/codes
 
 class TrialBrainData:
-    """ Abstract class for representing brain actvity recordings from multiple experimental trials.
+    """Abstract class for representing brain actvity recordings from multiple experimental trials.
 
     Attributes:
-        trial_nr (int): number of trials
-        chan_nr (int): number of channels
-        trials_len (int or list[int]): length of trials
-        samp_freq (float): sampling frequency in Hz
-        samp_mat_list (list[np.ndarray]): list of 2D sample matrices (of shape chan_nr, trials_len)
-        info_dict (dict): dictionary for storing meta data (e.g. channel labels)
+        trial_nr (int): number of trials.
+        chan_nr (int): number of channels.
+        trials_len (int or list[int]): length of trials.
+        samp_freq (float): sampling frequency in Hz.
+        samp_mat_list (list[np.ndarray]): list of 2D sample matrices (of shape chan_nr, trials_len).
+        info_dict (dict): dictionary for storing meta data (e.g. channel labels).
     """
 
     def __init__(self):
@@ -30,7 +30,7 @@ class TrialBrainData:
         return f"Brain activity recording from {self.trial_nr} trials of length {self.trials_len}; {self.chan_nr} channels and a {self.samp_freq}Hz sampling frequency."
 
     def load(self, samp_mat_list:list[np.ndarray], samp_freq:float, info_dict:dict=None)->None:
-        """ Function that loads object from input parameters.
+        """Function that loads object from input parameters.
 
         Args:
             samp_mat_list (list[np.ndarray]): list of 2D sample matrices
@@ -61,7 +61,7 @@ class TrialBrainData:
 
 
     def load_from_files(self, info_json_path:str, samp_bin_path:str)->None:
-        """ Load brain activity recording data from two files.
+        """Load brain activity recording data from two files.
 
         Args:
             info_json_path (str): path to json file containing information about the recording (i.e. number of channels, trials, trial lengths, channel names, etc.)
@@ -91,7 +91,7 @@ class TrialBrainData:
                 self.samp_mat_list.append(trials_samp_mat[t])
 
     def clear(self):
-        """ Function that clears all data.
+        """Function that clears all data.
         """
         self.trial_nr = 0
         self.chan_nr = 0
