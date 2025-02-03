@@ -39,6 +39,6 @@ conda create --name braindynamics_env python=3.12
 
 For an example of the pipeline, check `examples/pipeline_example.ipynb` notebook, or run the `.py` file with the same name.
 
-For more details, you can also refer to the [documentation available on ReadTheDocs](https://braindynamics-starprotocols-kipucolt2.readthedocs.io/en/latest/#)
+For more details, you can also refer to the [documentation available on ReadTheDocs](https://braindynamics-starprotocols.readthedocs.io)
 
 Link to the PyPi project site for release history: https://pypi.org/project/braindynamics-starprotocol
