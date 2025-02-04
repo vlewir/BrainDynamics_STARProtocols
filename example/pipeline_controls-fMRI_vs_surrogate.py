@@ -57,6 +57,9 @@ def plotter(shifts:np.ndarray, maxabs:np.ndarray, hist:np.ndarray, bins:np.ndarr
     if hist.shape != bins.shape:
         raise ValueError("Shapes of histogram bins and values do not match")
 
+    plt.rcParams['font.family'] = 'arial'
+    plt.rcParams['font.size'] = 16
+
     fig, ax = plt.subplots(1, 2, gridspec_kw={"width_ratios":[3,1]})
     ax[0].scatter(shifts, maxabs, s=1, color=color)
     ax[0].axhline(0, color="grey", alpha=0.25, linewidth=0.5)
