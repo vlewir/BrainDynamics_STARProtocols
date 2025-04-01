@@ -82,7 +82,7 @@ class TrialBrainData:
             max_trials_len = np.max(np.array(self.trials_len))
             trials_samp_mat = np.fromfile(samp_bin_path, dtype=SAMPLE_DTYPE).reshape(self.trial_nr, self.chan_nr, max_trials_len)
             for t in range(self.trial_nr):
-                trial_len = trials_len[t]
+                trial_len = self.trials_len[t]
                 self.samp_mat_list.append(trials_samp_mat[t][:, :trial_len]) # remove zero padding
         
         elif type(self.trials_len) == int: # all trials have the same length

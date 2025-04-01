@@ -42,3 +42,7 @@ For an example of the pipeline, check `examples/pipeline_example.ipynb` notebook
 For more details, you can also refer to the [documentation available on ReadTheDocs](https://braindynamics-starprotocols.readthedocs.io)
 
 Link to the PyPi project site for release history: https://pypi.org/project/braindynamics-starprotocol
+
+### 4) Citation
+
+Please cite our publication when using our code: **Varga, L.** et al. Protocol to study brain dynamics of mammals through the hierarchy of complex correlation patterns defining a robust functional architecture. _STAR Protocols_, Volume **6**, Issue **2**, 103693 (2025). DOI: https://doi.org/10.1016/j.xpro.2025.103693

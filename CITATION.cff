@@ -1,0 +1,70 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+authors:
+- family-names: Varga
+  given-names: Levente
+- family-names: Péntek
+  given-names: Balázs
+- family-names: Molnár
+  given-names: Botond
+- family-names: Perez-Cervera
+  given-names: Laura
+- family-names: Selim
+  given-names: Mohamed Kotb
+- family-names: Díaz-Parra
+  given-names: Antonio
+- family-names: Moratal
+  given-names: David
+- family-names: Sommer
+  given-names: Wolfgang H.
+- family-names: Canals
+  given-names: Santiago
+- family-names: Mureșan
+  given-names: Raul C.
+- family-names: Moca
+  given-names: Vasile V.
+- family-names: Ercsey-Ravasz
+  given-names: Maria
+title: Protocol to study brain dynamics of mammals through the hierarchy of complex correlation patterns defining a robust functional architecture
+doi: 10.1016/j.xpro.2025.103693
+issue: 2
+journal: STAR Protocols
+pages: 103693
+volume: 6
+url: https://linkinghub.elsevier.com/retrieve/pii/S2666166725000991
+date-published: 2025-06
+preferred-citation:
+  type: article
+  authors:
+  - family-names: Varga
+    given-names: Levente
+  - family-names: Péntek
+    given-names: Balázs
+  - family-names: Molnár
+    given-names: Botond
+  - family-names: Perez-Cervera
+    given-names: Laura
+  - family-names: Selim
+    given-names: Mohamed Kotb
+  - family-names: Díaz-Parra
+    given-names: Antonio
+  - family-names: Moratal
+    given-names: David
+  - family-names: Sommer
+    given-names: Wolfgang H.
+  - family-names: Canals
+    given-names: Santiago
+  - family-names: Mureșan
+    given-names: Raul C.
+  - family-names: Moca
+    given-names: Vasile V.
+  - family-names: Ercsey-Ravasz
+    given-names: Maria
+  title: Protocol to study brain dynamics of mammals through the hierarchy of complex correlation patterns defining a robust functional architecture
+  doi: 10.1016/j.xpro.2025.103693
+  issue: 2
+  journal: STAR Protocols
+  pages: 103693
+  volume: 6
+  url: https://linkinghub.elsevier.com/retrieve/pii/S2666166725000991
+  year: 2025
