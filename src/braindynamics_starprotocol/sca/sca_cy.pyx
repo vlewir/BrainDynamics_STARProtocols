@@ -78,12 +78,3 @@ cpdef cross_correlation(float[:] corr_coeff_arr, float[:] x, float[:] y, int max
         
         for shift in range(1, max_shift_size + 1):
             corr_coeff_arr[shift + max_shift_size] = _pearson_correlation(x[:n_x - shift], y[shift:])
-
-cpdef find_extremas(float[:] corr_coeff_arr, unsigned short[:] is_extrema):
-    cdef int i
-    cdef int n = len(corr_coeff_arr)
-    for i in range(1, n - 1):
-        if (corr_coeff_arr[i] - corr_coeff_arr[i - 1])*(corr_coeff_arr[i + 1] - corr_coeff_arr[i]) < 0:
-            is_extrema[i] = 1
-        else:
-            is_extrema[i] = 0

@@ -2,12 +2,12 @@ import os
 import numpy as np
 from scipy.stats import pearsonr
 try:
-    from .sca_cy import cross_correlation, find_extremas
+    from .sca_cy import cross_correlation
 except ModuleNotFoundError:
-    from sca.sca_cy import cross_correlation, find_extremas
+    from sca.sca_cy import cross_correlation
 import matplotlib.pyplot as plt
 from scipy.interpolate import Akima1DInterpolator
-from scipy.optimize import fmin
+from scipy.optimize import minimize_scalar
 
 def _fisher_transform(r:float, norm_factor:float=1.12)->float:
     return 0.5*log((1 + r/norm_factor)/(1 - r/norm_factor))
@@ -155,19 +155,21 @@ class CrossCorrelogram():
             self._compute_py(x, y, use_fisher=use_fisher)
         else:
             raise ValueError("Only two options are supported for `cc_method` parameter: 'py' for pure python implementation, 'C' for cython (recommended)")
-
+        
     def _find_extremas(self)->np.ndarray:
         """
-        Find extremas of the correlogram
+        Find extremas (peaks) of the correlogram.
 
         Returns:
-            np.ndarray: array of 1 or 0 representing whether the given point of the correlogram is an extrema or not
+            np.ndarray: array of booleans representing whether the given point of the correlogram is an extrema or not
         """
-        extremas = np.zeros(len(self.corr_coeff_arr), dtype=np.uint16)
-        find_extremas(np.abs(self.corr_coeff_arr), extremas)
+        extremas = np.full(len(self.corr_coeff_arr), False, dtype=bool)
+        for i in range(1, len(self.corr_coeff_arr) - 1):
+            if (self.corr_coeff_arr[i] - self.corr_coeff_arr[i - 1])*(self.corr_coeff_arr[i + 1] - self.corr_coeff_arr[i]) < 0:
+                extremas[i] = True
         return extremas
 
-    def _interpolate(self, shifts:np.ndarray, values:np.ndarray):
+    def _set_interpolator(self, shifts:np.ndarray, values:np.ndarray):
         """
         Wrapper function for the interpolator object.
 
@@ -176,6 +178,11 @@ class CrossCorrelogram():
             values (np.ndarray): Correlation values (y axis of the correlogram)
         """
         self._interpolator = Akima1DInterpolator(shifts, values)
+
+    def _interpolate(self, shift:float):
+        if self._interpolator is None:
+            raise ValueError('Akima interpolator object not set')
+        return self._interpolator(shift)
 
     def get_maxabs(self)->tuple:
         """
@@ -194,7 +201,16 @@ class CrossCorrelogram():
             return self.max_shift_size, self.corr_coeff_arr[0]
 
         # finding maxabs on correlogram
-        is_extrema = (self._find_extremas() == 1)
+        is_extrema = self._find_extremas()
+
+        # check if no peaks were detected on correlogram
+        if (is_extrema == False).all():
+            maxabs_idx = np.argmax(np.abs(self.corr_coeff_arr)) # in that case, maxabs will be its maximal absolute value (either first or last point, because it's monotonic)
+            self._maxabs_shift = maxabs_idx - self.max_shift_size
+            self._maxabs_value = self.corr_coeff_arr[maxabs_idx]
+            print(f'\tNOTE: No peaks found on the correlogram (it is monotonic function). Returning the maximal absolute value of the correlogram ({self._maxabs_value}) located at the maximal shift ({self._maxabs_shift}).')
+            return self._maxabs_shift, self._maxabs_value
+
         argmax_idx = np.argmax(np.abs(self.corr_coeff_arr[is_extrema]))
         maxabs_idx = np.where(is_extrema == 1)[0][argmax_idx] # index of extrema with max abs in the correlogram
         # preparing data for interpolation
@@ -203,20 +219,22 @@ class CrossCorrelogram():
         # interpolate & find minima         
         if self.corr_coeff_arr[maxabs_idx] < self.corr_coeff_arr[maxabs_idx - 1] and self.corr_coeff_arr[maxabs_idx] < self.corr_coeff_arr[maxabs_idx + 1]:
             self._maxabs_is_min = True
-            self._interpolate(shifts, values)
-            maxabs_hires_shift = fmin(self._interpolator, shifts[maxabs_idx], disp=0)
-            maxabs_hires_value = self._interpolator(maxabs_hires_shift)
+            self._set_interpolator(shifts, values)
+            res = minimize_scalar(self._interpolate, bounds=(shifts[maxabs_idx - 1], shifts[maxabs_idx + 1]), method='bounded') # find minimum near the detected peak (maxabs)
+            maxabs_hires_shift = res.x
+            maxabs_hires_value = res.fun
         elif self.corr_coeff_arr[maxabs_idx] > self.corr_coeff_arr[maxabs_idx - 1] and self.corr_coeff_arr[maxabs_idx] > self.corr_coeff_arr[maxabs_idx + 1]:
             self._maxabs_is_min = False
-            self._interpolate(shifts, -values) # if extrema is maxima, flip the function & find the minimas
-            maxabs_hires_shift = fmin(self._interpolator, shifts[maxabs_idx], disp=0)
-            maxabs_hires_value = -self._interpolator(maxabs_hires_shift)
+            self._set_interpolator(shifts, -values) # if extrema is maxima, flip the function & find the minimas
+            res = minimize_scalar(self._interpolate, bounds=(shifts[maxabs_idx - 1], shifts[maxabs_idx + 1]), method='bounded')
+            maxabs_hires_shift = res.x
+            maxabs_hires_value = -res.fun # flipping back to get maxima value
 
-        self._maxabs_shift = maxabs_hires_shift[0]
-        self._maxabs_value = maxabs_hires_value[0]
+        self._maxabs_shift = maxabs_hires_shift
+        self._maxabs_value = maxabs_hires_value
 
         return self._maxabs_shift, self._maxabs_value
-
+   
     def plot(self, show_interp:bool=False, show_maxabs:bool=False, interp_shift_res:float=0.1):
         """
         Plot correlogram.
